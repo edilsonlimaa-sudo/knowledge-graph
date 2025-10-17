@@ -1,7 +1,7 @@
 {
-    "name": "Python Dev Container",
-    "image": "mcr.microsoft.com/devcontainers/python:0-3.11-bullseye",
-    "postCreateCommand": "pip install -r requirements.txt",
+    "name": "Python Dev (uv)",
+    "image": "mcr.microsoft.com/devcontainers/python:3.12",
+    "postCreateCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && uv sync",
     "customizations": {
         "vscode": {
             "extensions": [

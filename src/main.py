@@ -80,6 +80,45 @@ PATTERNS = [
     ("Competencia", "E_RELACIONADA_A", "Competencia"),
 ]
 
+prompt_template = """
+    You are a top-tier algorithm designed for extracting structured information
+    from professional profiles and résumés (CVs) to build a specialized
+    **Human Resources (HR) Knowledge Graph**.
+
+    Your **primary objective** is to extract the entities (nodes) and specify their type
+    from the following text, and then establish relationships between them.
+    Your **highest priority** is to always establish a relationship between the
+    main 'Person' entity in the text and all other extracted entities (e.g., Skill,
+    Project, Organization, Qualification).
+
+    Extract the entities (nodes) and specify their type from the following text.
+    Also extract the relationships between these nodes.
+
+    Return result as JSON using the following format:
+    {{"nodes": [ {{"id": "0", "label": "Person", "properties": {{"name": "John"}} }}],
+    "relationships": [{{"type": "KNOWS", "start_node_id": "0", "end_node_id": "1", "properties": {{"since": "2024-08-01"}} }}] }}
+
+    Use only the following node and relationship types (if provided):
+    {schema}
+
+    Assign a unique ID (string) to each node, and reuse it to define relationships.
+    Do respect the source and target node types for relationship and
+    the relationship direction.
+
+    Make sure you adhere to the following rules to produce valid JSON objects:
+    - Do not return any additional information other than the JSON in it.
+    - Omit any backticks around the JSON - simply output the JSON on its own.
+    - The JSON object must not wrapped into a list - it is its own JSON object.
+    - Property names must be enclosed in double quotes
+
+    Examples:
+    {examples}
+
+    Input text:
+
+    {text}
+"""
+
 # ------------------ SimpleKGPipeline ------------------
 pipeline = SimpleKGPipeline(
     driver=driver,
@@ -90,7 +129,8 @@ pipeline = SimpleKGPipeline(
         "relationship_types": RELATIONSHIP_TYPES,
         "patterns": PATTERNS,
         "additional_node_types": False,
-    }
+    },
+    prompt_template=prompt_template,
 )
 
 # ------------------ PDF Processing ------------------

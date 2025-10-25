@@ -2,7 +2,7 @@ from neo4j import GraphDatabase
 from neo4j_graphrag.experimental.pipeline.kg_builder import SimpleKGPipeline
 from neo4j_graphrag.llm import OpenAILLM
 from neo4j_graphrag.embeddings import OpenAIEmbeddings
-from neo4j_graphrag.indexes import create_vector_index
+from neo4j_graphrag.indexes import create_vector_index, create_fulltext_index
 import nest_asyncio
 import asyncio
 from pathlib import Path
@@ -82,11 +82,12 @@ PATTERNS = [
 
 prompt_template = """
     You are a top-tier algorithm designed for extracting structured information
-    from professional profiles and résumés (CVs) to build a specialized
+    from **professional résumés (CVs) and profiles** to build a specialized
     **Human Resources (HR) Knowledge Graph**.
 
     Your **primary objective** is to extract the entities (nodes) and specify their type
-    from the following text, and then establish relationships between them.
+    from the following **CV/profile** text, and then establish relationships between them.
+    **Crucially, treat the entire input text as information belonging to the main 'Person' entity.**
     Your **highest priority** is to always establish a relationship between the
     main 'Person' entity in the text and all other extracted entities (e.g., Skill,
     Project, Organization, Qualification).
@@ -153,3 +154,10 @@ else:
 
 # ------------------ Index Vetorial ------------------
 create_vector_index(driver, name="chunkEmbeddings", label="Chunk", embedding_property="embedding", dimensions=1536, similarity_fn="cosine")
+
+create_fulltext_index(
+    driver,
+    name="candidateFulltext", # O nome que você usa no HybridCypherRetriever
+    label="Chunk",            # A label do nó onde o texto está
+    node_properties=["text"]  # A propriedade que contém o texto (o conteúdo do chunk)
+)
